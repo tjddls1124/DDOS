@@ -4,7 +4,7 @@ import struct
 import ctypes
 
 dstPort = 1234
-dstIp = '127.0.0.1'
+dstIp = '169.234.22.194'
 
 class TCPPacket:
     #How can I match dport to server's port?
@@ -62,8 +62,8 @@ class TCPPacket:
                           protocol ,
                           tcp_len
                           )
-        psh = str(psh) + str(self.raw) + str(self.data) #Is it String Concat?
-        self.tcp_chksum = self.chksum(psh)
+        psh = psh + self.raw + bytes(self.data,'utf-8') #Is it String Concat?
+        self.tcp_chksum = self.chksum(str(psh))
 
         self.reassemble_tcp_feilds()
 
@@ -76,11 +76,13 @@ class TCPPacket:
 
         # loop taking 2 characters at a time
         for i in range(0, len(msg), 2):
+            if (i+1) < len(msg):
+                a = ord(msg[i])
+                b = ord(msg[i+1])
+                s = s + (a+(b << 8))
 
-            a = ord(msg[i])
-            b = ord(msg[i+1])
-            s = s + (a+(b << 8))
-
+            elif (i+1)==len(msg):
+                s += ord(msg[i])
 
         # One's Complement
         s = s + (s >> 16)
@@ -137,7 +139,7 @@ if __name__=='__main__':
 
     #How can I send more packet and deny them? Is it In Main func?
     #s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
-    s = socket.socket()
+    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     tcp = TCPPacket()
     tcp.assemble_tcp_feilds()
     s.connect((dstIp,dstPort))
