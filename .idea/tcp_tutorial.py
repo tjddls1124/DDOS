@@ -3,9 +3,12 @@ import socket
 import struct
 import ctypes
 
+dstPort = 1234
+dstIp = '127.0.0.1'
+
 class TCPPacket:
     #How can I match dport to server's port?
-    def __init__(self, dport = 12345, sport = 80, dst='127.0.0.1', src='192.168.1.101', data = 'Nothing'):
+    def __init__(self, dport = dstPort, sport = 80, dst=dstIp, src='192.168.1.101', data = 'Nothing'):
         self.dport = dport
         self.sport = sport
         self.src_ip = src
@@ -133,10 +136,10 @@ if __name__=='__main__':
     # Create Raw Socket
 
     #How can I send more packet and deny them? Is it In Main func?
-    s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
-    #s = socket.socket()
+    #s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+    s = socket.socket()
     tcp = TCPPacket()
     tcp.assemble_tcp_feilds()
-    s.connect(('127.0.0.1',12345))
+    s.connect((dstIp,dstPort))
     print(s.recv(1024))
-    s.sendto(tcp.raw, ('127.0.0.1' , 1345 ))
+    s.sendto(tcp.raw, (dstIp , dstPort ))
