@@ -134,8 +134,9 @@ if __name__=='__main__':
 
     #How can I send more packet and deny them? Is it In Main func?
     s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
-
+    #s = socket.socket()
     tcp = TCPPacket()
     tcp.assemble_tcp_feilds()
     s.connect(('127.0.0.1',12345))
+    print(s.recv(1024))
     s.sendto(tcp.raw, ('127.0.0.1' , 1345 ))
