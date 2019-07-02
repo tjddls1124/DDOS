@@ -7,7 +7,7 @@ dstPort = 8000
 dstIp = '18.220.82.48'
 
 class TCPPacket:
-    #How can I match dport to server's port?
+    # How can I match dport to server's port?
     def __init__(self, dport = dstPort, sport = 80, dst=dstIp, src='192.168.1.101', data = 'NothingButAnything'):
         self.dport = dport
         self.sport = sport
