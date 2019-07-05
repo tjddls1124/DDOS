@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import socket
 import struct
-import ctypes
+import sys
 
 dstPort = 8000
 dstIp = '18.220.82.48'
@@ -137,11 +137,20 @@ class TCPPacket:
 if __name__=='__main__':
     # Create Raw Socket
 
-    #How can I send more packet and deny them? Is it In Main func?
-    #s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
-    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    #Can use only IVv4
+    # try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+        # s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    # except socket.error:
+    #     print(socket.error)
+    #     sys.exit()
+
+    # tell kernel not to put in headers, since we are providing it
+    # s.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+    s.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+
     tcp = TCPPacket()
     tcp.assemble_tcp_feilds()
     s.connect((dstIp,dstPort))
-    print(s.recv(1024))
-    s.sendto(tcp.raw, (dstIp , dstPort ))
+    s.sendto(tcp.raw, (dstIp , 0))
+    s.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)
