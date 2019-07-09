@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     end = input('How much seconds do you want?')
     start = time.time()
-    end = start + end
+    end = start + float(end)
 
     count = 0
 
