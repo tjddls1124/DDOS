@@ -3,8 +3,8 @@ import socket
 import struct
 import ctypes
 
-dstPort = 8000
-dstIp = '18.220.82.48'
+dstPort = 1234
+dstIp = '127.0.0.1'
 
 class TCPPacket:
     # How can I match dport to server's port?
@@ -89,6 +89,8 @@ class TCPPacket:
         s = ~s & 0xffff
         return s
 
+
+    # Make tcp fields
     def create_tcp_feilds(self):
 
         # ---- [ Source Port ]
@@ -138,10 +140,10 @@ if __name__=='__main__':
     # Create Raw Socket
 
     #How can I send more packet and deny them? Is it In Main func?
-    #s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
-    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+    #s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     tcp = TCPPacket()
     tcp.assemble_tcp_feilds()
-    s.connect((dstIp,dstPort))
-    print(s.recv(1024))
+    #s.connect((dstIp,dstPort))
     s.sendto(tcp.raw, (dstIp , dstPort ))
+    print(s.recv(1024))
