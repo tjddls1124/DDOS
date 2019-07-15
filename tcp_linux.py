@@ -1,9 +1,11 @@
 import socket, sys, time
 from struct import *
 from random import randint
+import random
+from ipaddress import IPv4Address
 
 class TCP_packet:
-    def __init__(self, source_ip = '169.234.40.51', dest_ip = '18.220.82.48', source_port = 1234, dest_port = 8000):
+    def __init__(self, source_ip = '169.234.21.69', dest_ip = '169.234.50.50', source_port = 80, dest_port = 8000):
         self.source_ip = source_ip
         self.dest_ip = dest_ip
         self.source_port = source_port
@@ -97,8 +99,12 @@ class TCP_packet:
         return
 
     def random_source(self):
-        self.source_ip = str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255))
+        bits = random.getrandbits(32)
+        addr = IPv4Address(bits)
+        addr_str = str(addr)
+        self.source_ip = addr_str #str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255))
         self.source_port = randint(0,9999)
+        #print(addr_str)
         self.makePacket()
         return
 
