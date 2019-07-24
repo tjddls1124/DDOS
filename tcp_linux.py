@@ -23,12 +23,12 @@ class TCP_packet:
 
         for i in range(0, len(msg), 2):
             if (i+1) < len(msg):
-                a = ord(msg[i])
-                b = ord(msg[i+1])
+                a = msg[i]
+                b = msg[i+1]
                 s = s + (a+(b << 8))
+            elif (i+1) == len(msg[i]):
+                s += msg[i]
 
-            elif (i+1)==len(msg):
-                s += ord(msg[i])
 
         s = (s>>16) + (s & 0xffff);
         s = s + (s >> 16);
@@ -89,8 +89,7 @@ class TCP_packet:
         # psh = psh + tcp_header +bytes(user_data, 'utf-8');
         psh = psh + tcp_header
 
-        tcp_check = self.checksum(str(psh))
-        #print tcp_checksum
+        tcp_check = self.checksum(bytearray(psh))
 
         # make the tcp header again and fill the correct checksum - remember checksum is NOT in network byte order
         tcp_header = pack('!HHLLBBH' , self.source_port, self.dest_port, tcp_seq, tcp_ack_seq, tcp_offset_res, tcp_flags,  tcp_window) + pack('H' , tcp_check) + pack('!H' , tcp_urg_ptr)
@@ -107,7 +106,7 @@ class TCP_packet:
         return
 
     def send_socket(self):
-        self.socket.sendto(tcp.packet, (self.dest_ip, self.dest_port))
+        self.socket.sendto(self.packet, (self.dest_ip, self.dest_port))
 
 if __name__ == "__main__":
     tcp = TCP_packet()
