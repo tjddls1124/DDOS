@@ -19,21 +19,27 @@ class TCP_packet:
             SOCK_RAW : use raw socket to control headers of packet
             IPPROTO_RAW : use raw ip protocol
             '''
+
         except:
             print('error occured')
             sys.exit()
 
+
+
+    '''
+    get checksum from msg string
+    by adding each string char bit
+    '''
     def checksum(self, msg):
         s = 0
 
         for i in range(0, len(msg), 2):
             if (i+1) < len(msg):
-                a = msg[i]
+                a = msg[i] #for each char of string
                 b = msg[i+1]
-                s = s + (a+(b << 8))
+                s = s + (a+(b << 8)) # shift 1 bytes and add char value (8bit shift & add)
             elif (i+1) == len(msg[i]):
                 s += msg[i]
-
 
         s = (s>>16) + (s & 0xffff)
         s = s + (s >> 16)
@@ -79,7 +85,7 @@ class TCP_packet:
         tcp_urg_ptr = 0
 
         tcp_offset_res = (tcp_doff << 4) + 0
-        tcp_flags = tcp_fin + (tcp_syn << 1) + (tcp_rst << 2) + (tcp_psh <<3) + (tcp_ack << 4) + (tcp_urg << 5) #shift & plus = concat
+        tcp_flags = tcp_fin + (tcp_syn << 1) + (tcp_rst << 2) + (tcp_psh <<3) + (tcp_ack << 4) + (tcp_urg << 5) #1 bit shift & plus = concat
 
         # the ! in the pack format string means network order
         tcp_header = pack('!HHLLBBHHH' , self.source_port, self.dest_port, tcp_seq, tcp_ack_seq, tcp_offset_res, tcp_flags,  tcp_window, tcp_check, tcp_urg_ptr)
@@ -105,27 +111,25 @@ class TCP_packet:
         return
 
     '''
-    generating random ip & port# and make packet with it. 
+    generating random ip & port# and make packet with it.
     '''
     def random_source(self):
         bits = random.getrandbits(32)
-        self.source_ip = str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255))
-        self.source_port = randint(0,9999)
-        #print(addr_str)
+        self.source_ip = str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255)) #make random IPv4 address
+        self.source_port = randint(0,9999) #make random port number
         self.makePacket()
         return
 
     def send_socket(self):
-        self.socket.sendto(self.packet, (self.dest_ip, self.dest_port))
+        self.socket.sendto(self.packet, (self.dest_ip, self.dest_port)) #sending packet to dest_ip & port
 
 if __name__ == "__main__":
     tcp = TCP_packet()
-
     end = input('How much seconds do you want?')
     start = time.time()
     end = start + float(end)
 
-    count = 0
+    count = 0 #to check how many packet was maden
 
     #do until time over
     while True:
