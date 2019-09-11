@@ -152,12 +152,12 @@ def ddosAttack(argv):
             specIp = ['-1','-1','-1']
         if opt == '-s':
             specIp = str(arg).split(".")
-    
+
     try :
         tcp = TCP_packet(dest_ip=args[0], dest_port= int(args[1]))
     except :
-        print('tcp_linux.py -r <SourceIp> <SourcePort>')
-        print('tcp_linux.py -s <Specific Ip 3byte> <SourceIp> <SourcePort>')
+        print('tcp_linux.py -r <DestinationIp> <DestinationPort>')
+        print('tcp_linux.py -s <Specific Ip 3byte> <DestinationIp> <DestinationPort>')
         sys.exit(2)
 
     end = input('How much seconds do you want?')
