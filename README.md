@@ -2,7 +2,7 @@
 
 ### Requirements
 - Ubuntu 16.04
-- Python 3.x ( we used 3.5.2 )
+- Python 3.5.2
 - Target Server 
 
 ### We Used
